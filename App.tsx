@@ -5,11 +5,11 @@ import Snackbar from 'react-native-snackbar';
 const App = () => {
   const [counter, setCounter] = useState(0);
 
-  const onIncrement = () => {
+  const onIncrement = (): void => {
     setCounter(counter + 1);
   };
 
-  const onDecrement = () => {
+  const onDecrement = (): void => {
     if (counter > 0) {
       setCounter(counter - 1);
     } else {
