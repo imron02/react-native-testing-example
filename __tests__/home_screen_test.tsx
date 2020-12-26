@@ -3,9 +3,9 @@ import React from 'react';
 import { fireEvent, render, RenderAPI } from '@testing-library/react-native';
 import Snackbar from 'react-native-snackbar';
 
-import App from '../App';
+import HomeScreen from '../src/screens/home_screen';
 
-const setup = () => render(<App />);
+const setup = () => render(<HomeScreen />);
 
 describe('render all ui correctly', () => {
   let wrapper: RenderAPI;
@@ -51,7 +51,6 @@ describe('test increment', () => {
   test('counter starts at 0', () => {
     const { getByTestId } = wrapper;
     const element = getByTestId('counter-display');
-    // @ts-ignore
     expect(element).toHaveTextContent('The count is 0');
   });
 
@@ -59,7 +58,6 @@ describe('test increment', () => {
     const { getByTestId, getByText } = wrapper;
     fireEvent.press(getByText('Increment counter'));
     const element = getByTestId('counter-display');
-    // @ts-ignore
     expect(element).toHaveTextContent('The count is 1');
   });
 });
@@ -80,7 +78,6 @@ describe('test decrement', () => {
     fireEvent.press(getByText('Decrement counter'));
 
     element = getByTestId('counter-display');
-    // @ts-ignore
     expect(element).toHaveTextContent('The count is 0');
   });
 
@@ -88,7 +85,6 @@ describe('test decrement', () => {
     const { getByTestId, getByText } = wrapper;
     fireEvent.press(getByText('Decrement counter'));
     const element = getByTestId('counter-display');
-    // @ts-ignore
     expect(element).toHaveTextContent('The count is 0');
   });
 
