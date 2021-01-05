@@ -6,7 +6,11 @@ const appInit = (): LoginActionTypes => {
 };
 
 const signIn = (token: string): LoginActionTypes => {
-  return { type: SIGN_IN, payload: token };
+  if (token) {
+    return { type: SIGN_IN, payload: token };
+  }
+
+  return { type: SIGN_OUT };
 };
 
 const signOut = (): LoginActionTypes => {
