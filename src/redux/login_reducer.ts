@@ -1,6 +1,6 @@
 import { LoginActionTypes, LoginState } from './types_reducer';
 
-const initialState: LoginState = {
+export const initialState: LoginState = {
   isLoading: true,
   isSignOut: false,
   userToken: null
