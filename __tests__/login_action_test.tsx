@@ -17,4 +17,9 @@ describe('login action', () => {
     const action = signOut();
     expect(action).toEqual({ type: SIGN_OUT });
   });
+
+  it('return sign out if token is empty', () => {
+    const action = signIn('');
+    expect(action).toEqual({ type: SIGN_OUT });
+  });
 });
