@@ -1,5 +1,11 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -67,7 +73,7 @@ const LoginScreen = ({ navigation }: Props) => {
               value={values.password}
               secureTextEntry
             />
-            <Pressable
+            <TouchableOpacity
               onPress={handleSubmit}
               testID="btn-login"
               style={[
@@ -76,7 +82,7 @@ const LoginScreen = ({ navigation }: Props) => {
               ]}
               disabled={!isValid || !dirty}>
               <Text style={styles.buttonText}>Login</Text>
-            </Pressable>
+            </TouchableOpacity>
           </View>
         )}
       </Formik>
