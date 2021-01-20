@@ -1,25 +1,65 @@
 import { appInit, signIn, signOut } from '../src/redux/login_action';
 import { APP_INIT, SIGN_IN, SIGN_OUT } from '../src/utils/constant_util';
+import request from '../src/utils/request_util';
+
+jest.mock('../src/utils/request_util');
+
+const mockAxios = (response: Object) => {
+  (request.post as jest.Mock).mockResolvedValueOnce(response);
+};
 
 describe('login action', () => {
+  const user = { email: 'test@mail.com', password: 'P4ssw0rd' };
+  const token = 'dummy-token';
+
   it('returns action with type APP_INIT', () => {
     const action = appInit();
     expect(action).toEqual({ type: APP_INIT });
   });
 
-  it('returns action with type SIGN_IN', () => {
-    const token = 'dummy-token';
-    const action = signIn(token);
-    expect(action).toEqual({ type: SIGN_IN, payload: token });
+  it('returns action with type SIGN_IN', async () => {
+    const response = {
+      status: 200,
+      message: 'login success',
+      data: { ...user, token }
+    };
+    mockAxios(response);
+    const action = await signIn(user.email, user.password);
+    expect(action).toEqual({ type: SIGN_IN, payload: response.data });
+  });
+
+  it('return sign out if wrong email', async () => {
+    const response = {
+      status: 404,
+      message: 'login failed, user not found'
+    };
+    mockAxios(response);
+    const action = await signIn('user.email', user.password);
+    expect(action).toEqual({ type: SIGN_OUT });
+  });
+
+  it('return sign out if wrong password', async () => {
+    const response = {
+      status: 404,
+      message: 'login failed, user not found'
+    };
+    mockAxios(response);
+    const action = await signIn('user.email', user.password);
+    expect(action).toEqual({ type: SIGN_OUT });
+  });
+
+  it('return sign out if wrong email and password', async () => {
+    const response = {
+      status: 404,
+      message: 'login failed, user not found'
+    };
+    mockAxios(response);
+    const action = await signIn('user.email', 'user.password');
+    expect(action).toEqual({ type: SIGN_OUT });
   });
 
   it('returns action with type SIGN_OUT', () => {
     const action = signOut();
-    expect(action).toEqual({ type: SIGN_OUT });
-  });
-
-  it('return sign out if token is empty', () => {
-    const action = signIn('');
     expect(action).toEqual({ type: SIGN_OUT });
   });
 });

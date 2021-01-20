@@ -1,16 +1,25 @@
 import { LoginActionTypes } from './types_reducer';
 import { APP_INIT, SIGN_IN, SIGN_OUT } from '../utils/constant_util';
+import request from '../utils/request_util';
 
 const appInit = (): LoginActionTypes => {
   return { type: APP_INIT };
 };
 
-const signIn = (token: string): LoginActionTypes => {
-  if (token) {
-    return { type: SIGN_IN, payload: token };
-  }
+const signIn = async (
+  email: string,
+  password: string
+): Promise<LoginActionTypes> => {
+  try {
+    const response = await request.post('/login', { email, password });
+    if (response.status === 200) {
+      return { type: SIGN_IN, payload: response.data };
+    }
 
-  return { type: SIGN_OUT };
+    return { type: SIGN_OUT };
+  } catch (e) {
+    return { type: SIGN_OUT };
+  }
 };
 
 const signOut = (): LoginActionTypes => {

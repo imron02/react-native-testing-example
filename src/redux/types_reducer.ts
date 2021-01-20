@@ -12,7 +12,11 @@ interface AppInitAction {
 
 interface SignInAction {
   type: typeof SIGN_IN;
-  payload: string;
+  payload: {
+    email: string;
+    password: string;
+    token: string;
+  };
 }
 
 interface SignOutAction {
