@@ -13,6 +13,8 @@ import LoginScreen from './src/screens/login_screen';
 import HomeScreen from './src/screens/home_screen';
 import SplashScreen from './src/screens/splash_screen';
 
+export type AppDispatch = typeof store.dispatch;
+
 const Stack = createStackNavigator<RootStackParamList>();
 
 export const RootNav = () => {
