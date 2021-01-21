@@ -1,13 +1,8 @@
-import loginReducer from '../src/redux/login_reducer';
+import loginReducer, { initialState } from '../src/redux/login_reducer';
 import { APP_INIT, SIGN_IN, SIGN_OUT } from '../src/utils/constant_util';
+import { LoginActionTypes } from '../src/redux/types_reducer';
 
 describe('login reducer', () => {
-  const initialState = {
-    isLoading: true,
-    isSignOut: false,
-    userToken: null
-  };
-
   it('returns default initial state if no action passed', () => {
     // @ts-ignore
     const newState = loginReducer(undefined, {});
@@ -21,14 +16,19 @@ describe('login reducer', () => {
 
   it('returns user token & isSignOut false upon receiving an action type SIGN_IN', () => {
     const dummyToken = 'dummy-token';
-    const newState = loginReducer(undefined, {
+    const action: LoginActionTypes = {
       type: SIGN_IN,
-      payload: dummyToken
-    });
+      payload: {
+        email: 'test@mail.com',
+        token: dummyToken
+      }
+    };
+    const newState = loginReducer(undefined, action);
     expect(newState).toEqual({
-      ...initialState,
-      userToken: dummyToken,
-      isSignOut: false
+      isLoading: false,
+      isSignOut: false,
+      email: action.payload.email,
+      userToken: action.payload.token
     });
   });
 
@@ -36,6 +36,7 @@ describe('login reducer', () => {
     const newState = loginReducer(initialState, { type: SIGN_OUT });
     expect(newState).toEqual({
       ...initialState,
+      email: null,
       userToken: null,
       isSignOut: true
     });
