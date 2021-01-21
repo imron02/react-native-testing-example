@@ -3,6 +3,7 @@ import { APP_INIT, SIGN_IN, SIGN_OUT } from '../utils/constant_util';
 export interface LoginState {
   isLoading: boolean;
   isSignOut: boolean;
+  email: string | null;
   userToken: string | null;
 }
 
@@ -14,7 +15,6 @@ interface SignInAction {
   type: typeof SIGN_IN;
   payload: {
     email: string;
-    password: string;
     token: string;
   };
 }
