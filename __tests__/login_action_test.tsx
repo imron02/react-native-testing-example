@@ -7,10 +7,21 @@ jest.mock('../src/utils/request_util');
 const mockAxios = (response: Object) => {
   (request.post as jest.Mock).mockResolvedValueOnce(response);
 };
+const mockAxiosCatch = (response: Object) => {
+  (request.post as jest.Mock).mockRejectedValueOnce(response);
+};
 
 describe('login action', () => {
   const user = { email: 'test@mail.com', password: 'P4ssw0rd' };
   const token = 'dummy-token';
+
+  const errorMessage = 'login failed, user not found';
+  const errorResponse = {
+    status: 404,
+    response: {
+      data: { message: errorMessage }
+    }
+  };
 
   it('returns action with type APP_INIT', () => {
     const action = appInit();
@@ -20,42 +31,35 @@ describe('login action', () => {
   it('returns action with type SIGN_IN', async () => {
     const response = {
       status: 200,
-      message: 'login success',
-      data: { ...user, token }
+      data: {
+        message: 'login success',
+        data: { ...user, token }
+      }
     };
     mockAxios(response);
     const action = await signIn(user.email, user.password);
-    expect(action).toEqual({ type: SIGN_IN, payload: response.data });
+    expect(action).toEqual({ type: SIGN_IN, payload: response.data.data });
   });
 
   it('return sign out if wrong email', async () => {
-    const response = {
-      status: 404,
-      message: 'login failed, user not found'
-    };
-    mockAxios(response);
-    const action = await signIn('user.email', user.password);
-    expect(action).toEqual({ type: SIGN_OUT });
+    mockAxiosCatch(errorResponse);
+    return signIn('user.email', user.password).catch((e) => {
+      expect(e).toEqual({ type: SIGN_OUT, message: errorMessage });
+    });
   });
 
   it('return sign out if wrong password', async () => {
-    const response = {
-      status: 404,
-      message: 'login failed, user not found'
-    };
-    mockAxios(response);
-    const action = await signIn('user.email', user.password);
-    expect(action).toEqual({ type: SIGN_OUT });
+    mockAxiosCatch(errorResponse);
+    return signIn(user.email, 'user.password').catch((e) => {
+      expect(e).toEqual({ type: SIGN_OUT, message: errorMessage });
+    });
   });
 
   it('return sign out if wrong email and password', async () => {
-    const response = {
-      status: 404,
-      message: 'login failed, user not found'
-    };
-    mockAxios(response);
-    const action = await signIn('user.email', 'user.password');
-    expect(action).toEqual({ type: SIGN_OUT });
+    mockAxiosCatch(errorResponse);
+    return signIn('user.email', 'user.password').catch((e) => {
+      expect(e).toEqual({ type: SIGN_OUT, message: errorMessage });
+    });
   });
 
   it('returns action with type SIGN_OUT', () => {

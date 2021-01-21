@@ -13,12 +13,15 @@ const signIn = async (
   try {
     const response = await request.post('/login', { email, password });
     if (response.status === 200) {
-      return { type: SIGN_IN, payload: response.data };
+      return Promise.resolve({ type: SIGN_IN, payload: response.data.data });
     }
 
-    return { type: SIGN_OUT };
+    return Promise.reject({ type: SIGN_OUT });
   } catch (e) {
-    return { type: SIGN_OUT };
+    return Promise.reject({
+      type: SIGN_OUT,
+      message: e.response.data.message ?? 'Sorry something went wrong'
+    });
   }
 };
 
