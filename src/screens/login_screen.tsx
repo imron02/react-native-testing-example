@@ -56,48 +56,55 @@ const LoginScreen = () => {
             .required('Required')
             .min(5, 'Minimum length is 5')
         })}>
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          isValid,
-          dirty
-        }) => (
-          <View style={styles.wrapper}>
-            <TextInput
-              placeholder="Input email"
-              style={styles.textInput}
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-              value={values.email}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-            <TextInput
-              placeholder="Input password"
-              style={styles.textInput}
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-              value={values.password}
-              secureTextEntry
-            />
-            {loading ? (
-              <ActivityIndicator testID="loading-component" color="red" />
-            ) : (
-              <TouchableOpacity
-                onPress={handleSubmit}
-                testID="btn-login"
-                style={[
-                  styles.button,
-                  (!isValid || !dirty) && styles.btnDisabled
-                ]}
-                disabled={!isValid || !dirty}>
-                <Text style={styles.buttonText}>Login</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
+        {(formikProps) => {
+          const {
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            values,
+            isValid,
+            dirty,
+            errors
+          } = formikProps;
+          return (
+            <View style={styles.wrapper}>
+              <TextInput
+                placeholder="Input email"
+                style={styles.textInput}
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                value={values.email}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+              {errors.email && (
+                <Text style={styles.errors}>{errors.email}</Text>
+              )}
+              <TextInput
+                placeholder="Input password"
+                style={styles.textInput}
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+                value={values.password}
+                secureTextEntry
+              />
+              {loading ? (
+                <ActivityIndicator testID="loading-component" color="red" />
+              ) : (
+                <TouchableOpacity
+                  onPress={handleSubmit}
+                  testID="btn-login"
+                  style={[
+                    styles.button,
+                    (!isValid || !dirty) && styles.btnDisabled
+                  ]}
+                  disabled={!isValid || !dirty}>
+                  <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          );
+        }}
       </Formik>
     </View>
   );
@@ -116,11 +123,11 @@ const styles = StyleSheet.create({
   textInput: {
     width: '100%',
     height: 40,
-    marginBottom: 16,
     borderColor: 'blue',
     borderWidth: 1,
     borderRadius: 10,
-    paddingHorizontal: 8
+    paddingHorizontal: 8,
+    marginTop: 10
   },
   button: {
     width: '100%',
@@ -128,7 +135,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'blue',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10
+    borderRadius: 10,
+    marginTop: 10
   },
   buttonText: {
     color: '#FFF',
@@ -136,6 +144,11 @@ const styles = StyleSheet.create({
   },
   btnDisabled: {
     backgroundColor: '#ccc'
+  },
+  errors: {
+    alignSelf: 'flex-start',
+    marginLeft: 5,
+    color: 'red'
   }
 });
 
