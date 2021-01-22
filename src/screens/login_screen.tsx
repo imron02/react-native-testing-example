@@ -1,36 +1,45 @@
 import React from 'react';
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import Snackbar from 'react-native-snackbar';
 
-import { RootStackParamList } from '../types/root_stack_type';
-import { ScreenName } from '../utils/screen_name_util';
+import { signIn } from '../redux/login_action';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../../App';
+import { SIGN_OUT } from '../utils/constant_util';
 
-type LoginScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  ScreenName.login
->;
-
-type Props = {
-  navigation: LoginScreenNavigationProp;
-};
-
-interface Values {
+interface IValues {
   email: string;
   password: string;
 }
 
-const LoginScreen = ({ navigation }: Props) => {
-  const onLogin = (values: Values): void => {
-    if (values.email && values.password) {
-      navigation.navigate('Home');
+const LoginScreen = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const [loading, setLoading] = React.useState(false);
+
+  const onLogin = async (values: IValues): Promise<void> => {
+    try {
+      setLoading(true);
+      if (values.email && values.password) {
+        const response = await signIn(values.email, values.password);
+        dispatch(response);
+      }
+      setLoading(false);
+    } catch (e) {
+      dispatch({ type: SIGN_OUT });
+      Snackbar.show({
+        text: e.message,
+        duration: Snackbar.LENGTH_SHORT
+      });
+      setLoading(false);
     }
   };
 
@@ -73,16 +82,20 @@ const LoginScreen = ({ navigation }: Props) => {
               value={values.password}
               secureTextEntry
             />
-            <TouchableOpacity
-              onPress={handleSubmit}
-              testID="btn-login"
-              style={[
-                styles.button,
-                (!isValid || !dirty) && styles.btnDisabled
-              ]}
-              disabled={!isValid || !dirty}>
-              <Text style={styles.buttonText}>Login</Text>
-            </TouchableOpacity>
+            {loading ? (
+              <ActivityIndicator testID="loading-component" color="red" />
+            ) : (
+              <TouchableOpacity
+                onPress={handleSubmit}
+                testID="btn-login"
+                style={[
+                  styles.button,
+                  (!isValid || !dirty) && styles.btnDisabled
+                ]}
+                disabled={!isValid || !dirty}>
+                <Text style={styles.buttonText}>Login</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
       </Formik>

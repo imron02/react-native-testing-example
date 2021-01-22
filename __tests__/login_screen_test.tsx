@@ -6,16 +6,42 @@ import {
   RenderAPI,
   waitFor
 } from '@testing-library/react-native';
+import { Provider } from 'react-redux';
+import Snackbar from 'react-native-snackbar';
+import * as redux from 'react-redux';
 
+import { storeFactory } from '../src/utils/test_util';
+import { SIGN_IN, SIGN_OUT } from '../src/utils/constant_util';
 import LoginScreen from '../src/screens/login_screen';
+import request from '../src/utils/request_util';
 
-let mockProps: any = { navigation: { navigate: jest.fn() } };
+jest.mock('../src/utils/request_util');
+const mockAxios = (response: Object) => {
+  (request.post as jest.Mock).mockResolvedValueOnce(response);
+};
+const mockAxiosCatch = (response: Object) => {
+  (request.post as jest.Mock).mockRejectedValueOnce(response);
+};
+const useDispatchSpy = jest.spyOn(redux, 'useDispatch');
+const mockDispatchFn = jest.fn();
+useDispatchSpy.mockReturnValue(mockDispatchFn);
 
-const setup = () => render(<LoginScreen {...mockProps} />);
+const store = storeFactory();
+const setup = () => {
+  return render(
+    <Provider store={store}>
+      <LoginScreen />
+    </Provider>
+  );
+};
 
 let wrapper: RenderAPI;
 beforeEach(() => {
   wrapper = setup();
+});
+
+beforeEach(() => {
+  useDispatchSpy.mockClear();
 });
 
 describe('renders all ui correctly', () => {
@@ -125,17 +151,83 @@ describe('disabled button login', () => {
 });
 
 describe('login flow', () => {
+  const user = { email: 'test@mail.com', password: 'P4ssw0rd' };
+  const token = 'dummy-token';
+  const errorMessage = 'login failed, user not found';
+  const errorResponse = {
+    status: 404,
+    response: {
+      data: { message: errorMessage }
+    }
+  };
+
   it('on login success', async () => {
+    const response = {
+      status: 200,
+      message: 'login success',
+      data: {
+        data: { email: user.email, token }
+      }
+    };
+    mockAxios(response);
     const { getByPlaceholderText, getByTestId } = wrapper;
     const email = getByPlaceholderText('Input email');
     const pass = getByPlaceholderText('Input password');
 
-    fireEvent.changeText(email, 'test@mail.com');
-    fireEvent.changeText(pass, 'password');
+    fireEvent.changeText(email, user.email);
+    fireEvent.changeText(pass, user.password);
     fireEvent.press(getByTestId('btn-login'));
 
     await waitFor(() => {
-      expect(mockProps.navigation.navigate).toHaveBeenCalledWith('Home');
+      expect(mockDispatchFn).toHaveBeenCalledWith({
+        type: SIGN_IN,
+        payload: {
+          email: user.email,
+          token
+        }
+      });
+    });
+  });
+
+  it('login failure with wrong email, show snackbar', async () => {
+    mockAxiosCatch(errorResponse);
+    const { getByPlaceholderText, getByTestId } = wrapper;
+    const email = getByPlaceholderText('Input email');
+    const pass = getByPlaceholderText('Input password');
+
+    fireEvent.changeText(email, 'wrong@mail.com');
+    fireEvent.changeText(pass, user.password);
+    fireEvent.press(getByTestId('btn-login'));
+
+    await waitFor(() => {
+      expect(Snackbar.show).toHaveBeenCalledWith({
+        text: 'login failed, user not found',
+        duration: Snackbar.LENGTH_SHORT
+      });
+      expect(mockDispatchFn).toHaveBeenCalledWith({
+        type: SIGN_OUT
+      });
+    });
+  });
+
+  it('login failure with wrong password, show snackbar', async () => {
+    mockAxiosCatch(errorResponse);
+    const { getByPlaceholderText, getByTestId } = wrapper;
+    const email = getByPlaceholderText('Input email');
+    const pass = getByPlaceholderText('Input password');
+
+    fireEvent.changeText(email, user.email);
+    fireEvent.changeText(pass, 'user.password');
+    fireEvent.press(getByTestId('btn-login'));
+
+    await waitFor(() => {
+      expect(Snackbar.show).toHaveBeenCalledWith({
+        text: 'login failed, user not found',
+        duration: Snackbar.LENGTH_SHORT
+      });
+      expect(mockDispatchFn).toHaveBeenCalledWith({
+        type: SIGN_OUT
+      });
     });
   });
 });
