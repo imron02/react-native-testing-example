@@ -43,7 +43,7 @@ Run test only once
 $ yarn test
 ```
 
-Run test with --watch option to watch files for changes and rerun tests related to changed files.
+Run test with `--watch` option to watch files for changes and rerun tests related to changed files.
 ```shell
-$ test:watch
+$ yarn test:watch
 ```
