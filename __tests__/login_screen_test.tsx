@@ -231,3 +231,45 @@ describe('login flow', () => {
     });
   });
 });
+
+describe('show message error if input field not valid', () => {
+  it('show email error message', async function () {
+    const { getByPlaceholderText, getByText } = wrapper;
+    const email = getByPlaceholderText('Input email');
+    fireEvent.changeText(email, 'user.email');
+
+    await waitFor(() => {
+      expect(getByText('Invalid email address')).toBeTruthy();
+    });
+  });
+
+  it('show email error message required', async function () {
+    const { getByPlaceholderText, getByText } = wrapper;
+    const email = getByPlaceholderText('Input email');
+    fireEvent.changeText(email, '');
+
+    await waitFor(() => {
+      expect(getByText('Email is required')).toBeTruthy();
+    });
+  });
+
+  it('show password error message required', async function () {
+    const { getByPlaceholderText, getByText } = wrapper;
+    const password = getByPlaceholderText('Input password');
+    fireEvent.changeText(password, '');
+
+    await waitFor(() => {
+      expect(getByText('Password is required')).toBeTruthy();
+    });
+  });
+
+  it('show password error minimum length', async function () {
+    const { getByPlaceholderText, getByText } = wrapper;
+    const password = getByPlaceholderText('Input password');
+    fireEvent.changeText(password, '123');
+
+    await waitFor(() => {
+      expect(getByText('Password minimum length is 5')).toBeTruthy();
+    });
+  });
+});

@@ -51,10 +51,10 @@ const LoginScreen = () => {
         validationSchema={Yup.object({
           email: Yup.string()
             .email('Invalid email address')
-            .required('Required'),
+            .required('Email is required'),
           password: Yup.string()
-            .required('Required')
-            .min(5, 'Minimum length is 5')
+            .required('Password is required')
+            .min(5, 'Password minimum length is 5')
         })}>
         {(formikProps) => {
           const {
@@ -88,6 +88,9 @@ const LoginScreen = () => {
                 value={values.password}
                 secureTextEntry
               />
+              {errors.password && (
+                <Text style={styles.errors}>{errors.password}</Text>
+              )}
               {loading ? (
                 <ActivityIndicator testID="loading-component" color="red" />
               ) : (
@@ -148,7 +151,8 @@ const styles = StyleSheet.create({
   errors: {
     alignSelf: 'flex-start',
     marginLeft: 5,
-    color: 'red'
+    color: 'red',
+    paddingTop: 5
   }
 });
 
